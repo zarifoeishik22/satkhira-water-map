@@ -1,13 +1,16 @@
-/* Edit this file to change wording, dates, walking distances or basemaps.
-   Nothing else needs touching for a routine update (new data.js is all you need). */
+/* Edit this file to change wording, dates, radius defaults or basemaps.
+   For a routine update only data.js needs to change. */
 window.WGM_CONFIG = {
-  title:    { en: "Satkhira Water Governance Map", bn: "সাতক্ষীরা পানি ব্যবস্থাপনা মানচিত্র" },
-  area:     { en: "Assasuni upazila", bn: "আশাশুনি উপজেলা" },
-  surveyed: { en: "Survey: 17 Sep to 17 Oct 2026", bn: "জরিপ: ১৭ সেপ্টেম্বর থেকে ১৭ অক্টোবর ২০২৬" },
+  title: "Satkhira Water Governance Map",
+  area: "Assasuni upazila",
+  surveyed: "Survey: 17 Sep to 17 Oct 2026",
   // Email or web address shown for corrections. Leave "" to hide the line.
   contact: "",
-  // Walking range in metres. 800 m = 15 min at 3.2 km/h (carrying water); 1250 m = 15 min at 5 km/h (unloaded).
-  walk: { loaded: 800, unloaded: 1250 },
+  // A "Check a location" circle further than this (metres) from every surveyed facility triggers a "may not be surveyed" warning.
+  surveyRadius: 1500,
+  // Default radius (metres) for the nearby-facilities circle, and for the range shading.
+  nearbyRadius: 1000,
+  rangeRadius: 800,
   basemaps: {
     street:    { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", maxZoom: 19,
                  attribution: "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors" },

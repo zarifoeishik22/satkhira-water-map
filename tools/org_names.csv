@@ -1,0 +1,70 @@
+match,short
+# Rules are checked top to bottom, first hit wins. "match" is a case-insensitive piece of the typed name.
+# Leave "short" blank to show N/A. Use SELF for self-funded / individual. Edit freely, then re-run build_data.py.
+প্রযোয,
+প্রযোজ,
+জানা ন,
+n/a,
+ask have climate,
+self,SELF
+ব্যক্তি,SELF
+নিজে,SELF
+individual,SELF
+gov & idb,Govt + IDB
+wateraid,WaterAid
+water aid,WaterAid
+ওয়াটার এইড,WaterAid
+undp,UNDP
+ইউএনডিপি,UNDP
+gca,GCA
+green climate,GCF
+dphe,DPHE
+dohe,DPHE
+ডি পি এইচ,DPHE
+ডিপি এইচ,DPHE
+ডিপিএইচ,DPHE
+জনস্বাস্থ্য,DPHE
+rupantar,Rupantar
+rupanrar,Rupantar
+রূপান্তর,Rupantar
+রুপান্তর,Rupantar
+brac,BRAC
+ব্র্যাক,BRAC
+ব্রাক,BRAC
+ngo f,NGO Forum
+এনজিও ফ,NGO Forum
+pksf,PKSF
+পিকেএসএফ,PKSF
+muslim aid,Muslim Aid
+qatar,Qatar Charity
+কাতার,Qatar Charity
+esdo,ESDO
+ইএসডিও,ESDO
+friendship,Friendship
+ফ্রেন্ডশিপ,Friendship
+unnuan,Unnayan Prochesta
+উন্নয়ন,Unnayan Prochesta
+উত্তরণ,Uttaran
+উত্তরন,Uttaran
+save,Save the Children
+সেভ দা,Save the Children
+world vision,World Vision
+warld vision,World Vision
+concern,Concern
+idb,IDB
+japan,Japan
+স্থানীয় সরকার,LGD
+উপজেলা পরিচালন,Upazila project
+উপজেলা পরিষদ,Upazila Parishad
+সরকার,Govt
+royal danish,Danish Embassy
+নেদারল্যান্ড,Netherlands
+সুইজারল্যান্ড,Switzerland + Enfants du Monde
+sign of hope,Sign of Hope + BMZ
+আকিজ,Akij Trust
+বাঁচতে শেখা,Banchte Shekha
+shushilan,Shushilan
+প্রবাহ,Probaho
+শাপলা,Shapla Water Technology
+ফজিলাতুন,Fazilatunnesa Foundation
+bangladesh nazarene,Bangladesh Nazarene Mission

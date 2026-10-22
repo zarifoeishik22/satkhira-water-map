@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Satkhira Water Governance Map</title>
-<meta name="description" content="Community water facilities in Assasuni upazila, Satkhira: what exists, whether it works, and what is within a 15-minute walk.">
+<meta name="description" content="Community water facilities in Assasuni upazila, Satkhira: what exists, whether it works, and what is nearby.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -16,48 +19,52 @@
         <h1 id="t_title"></h1>
         <p class="meta"><span id="t_area"></span> · <span id="t_surveyed"></span></p>
       </div>
-      <div class="head-actions">
-        <div class="lang" role="group" aria-label="Language">
-          <button id="lang_en" type="button">EN</button><button id="lang_bn" type="button">বাং</button>
-        </div>
-        <button id="toggle" type="button" class="toggle" aria-expanded="true" aria-controls="body"></button>
-      </div>
+      <button id="toggle" type="button" class="toggle" aria-expanded="true" aria-controls="body">Hide</button>
     </div>
     <div id="body" class="body">
+      <section id="nearby">
+        <h2>Nearby, same technology</h2>
+        <p class="hint">Tap a facility on the map to see similar ones within the radius, or check any spot.</p>
+        <label class="field"><span>Radius <b id="rv2"></b></span>
+          <input type="range" id="rad" min="250" max="1500" step="50" aria-label="Nearby radius in metres"></label>
+        <button id="check" type="button" class="btn" aria-pressed="false">Check a location</button>
+        <label class="field" id="ctw" hidden><span>Technology to look for</span><select id="ctech"></select></label>
+        <div id="nearres" class="nearres" aria-live="polite"></div>
+      </section>
       <section>
-        <h2 data-i="h_range"></h2>
-        <label class="field"><span data-i="l_layer"></span>
+        <h2>Range</h2>
+        <label class="field"><span>Show range of</span>
           <select id="layer">
-            <option value="off" data-i="o_off"></option>
-            <option value="all" data-i="o_all"></option>
-            <option value="RO"></option><option value="RWH"></option><option value="PSF"></option><option value="RES"></option>
+            <option value="off">Off</option>
+            <option value="all">All technologies</option>
+            <option value="RO">RO plant</option><option value="RWH">Rainwater harvesting</option>
+            <option value="PSF">Pond sand filter</option><option value="RES">Reservoir</option>
           </select>
         </label>
-        <div class="radios" role="radiogroup">
-          <label><input type="radio" name="dist" value="loaded" checked> <span data-i="d_loaded"></span></label>
-          <label><input type="radio" name="dist" value="unloaded"> <span data-i="d_unloaded"></span></label>
-          <label><input type="radio" name="dist" value="both"> <span data-i="d_both"></span></label>
-        </div>
-        <label class="check"><input type="checkbox" id="working" checked> <span data-i="c_working"></span></label>
+        <label class="field"><span>Radius <b id="rv"></b></span>
+          <input type="range" id="range" min="0" max="1500" step="50" aria-label="Range radius in metres"></label>
+        <label class="check"><input type="checkbox" id="working" checked> <span>Count working facilities only</span></label>
         <p class="caption" id="cap"></p>
       </section>
       <section>
-        <h2 data-i="h_tech"></h2>
+        <h2>Technology</h2>
         <div id="techs" class="list"></div>
-        <h2 data-i="h_status"></h2>
+        <h2 style="margin-top:12px">Status</h2>
         <div id="stats" class="list"></div>
         <p class="summary" id="summary" aria-live="polite"></p>
       </section>
       <section>
-        <h2 data-i="h_base"></h2>
+        <h2>Basemap</h2>
         <div class="radios inline">
-          <label><input type="radio" name="base" value="street" checked> <span data-i="b_street"></span></label>
-          <label><input type="radio" name="base" value="satellite"> <span data-i="b_sat"></span></label>
+          <label><input type="radio" name="base" value="street" checked> <span>Street</span></label>
+          <label><input type="radio" name="base" value="satellite"> <span>Satellite</span></label>
         </div>
       </section>
       <details class="about">
-        <summary data-i="h_about"></summary>
-        <p data-i="a_1"></p><p data-i="a_2"></p><p data-i="a_3"></p>
+        <summary>About this map</summary>
+        <p>Each symbol is a community water facility recorded in a field survey. Shape shows the technology. Green is working, amber is not working, red is abandoned and grey is under construction.</p>
+        <p>Status is what was recorded on the survey date and may have changed since. Ranges and nearby counts use straight-line distances. Real paths are usually longer.</p>
+        <p>Household tube wells are not included. N/A means the information was not available.</p>
         <p id="contact" hidden></p>
       </details>
     </div>
