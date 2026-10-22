@@ -1,0 +1,66 @@
+:root{
+  --ink:#16262c; --muted:#58696f; --line:#d5dde0; --panel:#ffffff; --wash:#f2f5f6;
+  --accent:#1f5f8f; --good:#1a8f4c; --bad:#d1342a; --idle:#7d8a8f;
+  --font:system-ui,-apple-system,"Segoe UI","Noto Sans Bengali","Kalpurush","SolaimanLipi","Nirmala UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:14px/1.45 var(--font);color:var(--ink);background:var(--wash)}
+#app{display:flex;height:100%;height:100dvh}
+#panel{width:340px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;z-index:5}
+#map{flex:1;min-width:0;background:#dfe6e8}
+.head{display:flex;justify-content:space-between;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.titles{min-width:0}
+h1{font-size:17px;line-height:1.25;margin:0;font-weight:650;letter-spacing:-.005em}
+.meta{margin:3px 0 0;color:var(--muted);font-size:12px}
+.head-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.lang{display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.lang button{border:0;background:#fff;color:var(--ink);padding:4px 9px;font:inherit;font-size:12px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.toggle{display:none;border:1px solid var(--line);background:#fff;border-radius:5px;padding:4px 10px;font:inherit;font-size:12px;cursor:pointer}
+.body{overflow:auto;padding:4px 16px 18px;flex:1;min-height:0}
+section{padding:10px 0;border-bottom:1px solid var(--line)}
+h2{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:6px 0 8px;font-weight:600}
+.field{display:flex;flex-direction:column;gap:4px;font-size:13px;margin-bottom:8px}
+select{font:inherit;padding:7px 8px;border:1px solid var(--line);border-radius:5px;background:#fff;color:var(--ink)}
+.radios{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.radios.inline{flex-direction:row;gap:16px}
+label{cursor:pointer}
+.check,.radios label,.list label{display:flex;align-items:center;gap:8px;padding:2px 0}
+input[type=checkbox],input[type=radio]{accent-color:var(--accent);margin:0;width:16px;height:16px}
+.caption{margin:8px 0 0;font-size:12px;color:var(--muted)}
+.swatch{display:inline-block;width:12px;height:12px;background:rgba(47,111,176,.28);border:1.5px solid #1f4f86;border-radius:2px;vertical-align:-1px;margin-right:6px}
+.list{display:flex;flex-direction:column;margin-bottom:10px}
+.list .n{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums}
+.list svg{flex:none}
+.summary{margin:2px 0 0;font-size:13px;font-weight:600}
+.about{padding:10px 0;font-size:12.5px;color:var(--muted)}
+.about summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:13px}
+.about p{margin:8px 0 0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* markers */
+.wgm-pin{background:none;border:0}
+.wgm-pin svg{display:block;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.45));transition:transform .12s}
+.wgm-pin:hover svg,.leaflet-marker-icon:focus svg{transform:scale(1.18)}
+.wgm-small .wgm-pin svg{transform:scale(.72)}
+.wgm-small .wgm-pin:hover svg,.wgm-small .leaflet-marker-icon:focus svg{transform:scale(.9)}
+/* popup */
+.leaflet-popup-content{margin:12px 14px;font:13px/1.45 var(--font);min-width:210px}
+.pop h3{margin:0 0 4px;font-size:15px;font-weight:650}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;color:#fff;margin-bottom:8px}
+.pop dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px}
+.pop dt{color:var(--muted)} .pop dd{margin:0;font-variant-numeric:tabular-nums}
+.pop .sep{border-top:1px solid var(--line);margin:8px 0 6px;padding-top:6px;font-size:12px;color:var(--muted)}
+.pop .id{font-size:11px;color:var(--muted);margin-top:8px}
+.wgm-cov{pointer-events:none}
+@media (max-width:760px){
+  #app{flex-direction:column-reverse}
+  #panel{width:100%;border-right:0;border-top:1px solid var(--line);max-height:48dvh;padding-bottom:env(safe-area-inset-bottom,0px)}
+  #panel.closed{max-height:none}
+  #panel.closed .body{display:none}
+  .toggle{display:block}
+  .head{padding:10px 14px}
+  h1{font-size:15px}
+  .head-actions{flex-direction:row;align-items:center}
+}

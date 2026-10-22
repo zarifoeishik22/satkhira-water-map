@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Satkhira Water Governance Map</title>
+<meta name="description" content="Community water facilities in Assasuni upazila, Satkhira: what exists, whether it works, and what is within a 15-minute walk.">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <aside id="panel" aria-label="Map controls">
+    <div class="head">
+      <div class="titles">
+        <h1 id="t_title"></h1>
+        <p class="meta"><span id="t_area"></span> · <span id="t_surveyed"></span></p>
+      </div>
+      <div class="head-actions">
+        <div class="lang" role="group" aria-label="Language">
+          <button id="lang_en" type="button">EN</button><button id="lang_bn" type="button">বাং</button>
+        </div>
+        <button id="toggle" type="button" class="toggle" aria-expanded="true" aria-controls="body"></button>
+      </div>
+    </div>
+    <div id="body" class="body">
+      <section>
+        <h2 data-i="h_range"></h2>
+        <label class="field"><span data-i="l_layer"></span>
+          <select id="layer">
+            <option value="off" data-i="o_off"></option>
+            <option value="all" data-i="o_all"></option>
+            <option value="RO"></option><option value="RWH"></option><option value="PSF"></option><option value="RES"></option>
+          </select>
+        </label>
+        <div class="radios" role="radiogroup">
+          <label><input type="radio" name="dist" value="loaded" checked> <span data-i="d_loaded"></span></label>
+          <label><input type="radio" name="dist" value="unloaded"> <span data-i="d_unloaded"></span></label>
+          <label><input type="radio" name="dist" value="both"> <span data-i="d_both"></span></label>
+        </div>
+        <label class="check"><input type="checkbox" id="working" checked> <span data-i="c_working"></span></label>
+        <p class="caption" id="cap"></p>
+      </section>
+      <section>
+        <h2 data-i="h_tech"></h2>
+        <div id="techs" class="list"></div>
+        <h2 data-i="h_status"></h2>
+        <div id="stats" class="list"></div>
+        <p class="summary" id="summary" aria-live="polite"></p>
+      </section>
+      <section>
+        <h2 data-i="h_base"></h2>
+        <div class="radios inline">
+          <label><input type="radio" name="base" value="street" checked> <span data-i="b_street"></span></label>
+          <label><input type="radio" name="base" value="satellite"> <span data-i="b_sat"></span></label>
+        </div>
+      </section>
+      <details class="about">
+        <summary data-i="h_about"></summary>
+        <p data-i="a_1"></p><p data-i="a_2"></p><p data-i="a_3"></p>
+        <p id="contact" hidden></p>
+      </details>
+    </div>
+  </aside>
+  <main id="map" aria-label="Map"></main>
+</div>
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
