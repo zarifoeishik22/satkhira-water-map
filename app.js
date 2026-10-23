@@ -1,8 +1,8 @@
 (function () {
   "use strict";
   var CFG = window.WGM_CONFIG, FEATS = window.WGM_DATA.features;
-  var TECH = ["RO", "RWH", "PSF", "RES"], STAT = ["O", "N", "A", "C"];
-  var TECH_NAME = { RO: "RO plant", RWH: "Rainwater harvesting", PSF: "Pond sand filter", RES: "Reservoir" };
+  var TECH = ["RO", "RWH", "PSF", "OTH"], STAT = ["O", "N", "A", "C"];
+  var TECH_NAME = { RO: "RO plant", RWH: "Rainwater harvesting", PSF: "Pond sand filter", OTH: "Other" };
   var STAT_NAME = { O: "Working", N: "Not working", A: "Abandoned", C: "Under construction" };
   var COL = { O: "#1f9d55", N: "#e8890c", A: "#d1342a", C: "#7d8a8f", X: "#44555b" };
   var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -19,9 +19,19 @@
   var kx = 111320 * Math.cos(lat0 * Math.PI / 180), ky = 110574;
   var ASSETS = FEATS.map(function (f) {
     var p = f.properties, c = f.geometry.coordinates;
-    return { id: p.id, t: p.t, s: p.s, u: p.u, y: p.y, m: p.m, src: p.src, out: p.out, pop: p.pop, sup: p.sup, imp: p.imp, om: p.om, w: p.w,
+    return { id: p.id, t: p.t, ty: p.ty, s: p.s, u: p.u, y: p.y, m: p.m, src: p.src, out: p.out, pop: p.pop, sup: p.sup, imp: p.imp, om: p.om, w: p.w,
              lon: c[0], lat: c[1], x: (c[0] - lon0) * kx, yy: (c[1] - lat0) * ky };
   });
+  /* "kind" = what counts as the same type when looking for nearby facilities. "Other" is split by its Type line,
+     so a reservoir is never compared with a piped supply. */
+  var kindOf = function (a) { return a.t === "OTH" ? "OTH|" + (a.ty || "Other") : a.t; };
+  var kindName = function (k) { return k.indexOf("OTH|") === 0 ? k.slice(4) : TECH_NAME[k]; };
+  var techLabel = function (a) { return a.t === "OTH" ? "Other (" + (a.ty || "Other") + ")" : TECH_NAME[a.t]; };
+  var KINDS = (function () {
+    var seen = {}, out = [];
+    ASSETS.forEach(function (a) { var k = kindOf(a); if (!seen[k]) { seen[k] = 1; out.push(k); } });
+    return out.sort(function (p, q) { var i = TECH.indexOf(p.split("|")[0]), j = TECH.indexOf(q.split("|")[0]); return i - j || (p < q ? -1 : 1); });
+  })();
   var xy = function (lat, lon) { return { x: (lon - lon0) * kx, yy: (lat - lat0) * ky }; };
   function dist(a, b) { var dx = a.x - b.x, dy = a.yy - b.yy; return Math.sqrt(dx * dx + dy * dy); }
 
@@ -106,16 +116,16 @@
   /* ---------- state ---------- */
   var tech = new Set(TECH), stat = new Set(STAT);
   var markers = L.layerGroup().addTo(map), byId = {};
-  var R = CFG.nearbyRadius || 1000;
+  var R = CFG.radius || 800;  /* one radius drives the range shading and the nearby circle */
   var selA = null, pin = null, pinMarker = null, checking = false, checkTech = "RO";
 
   function nearList(o, t, excludeId) {
-    return ASSETS.filter(function (a) { return a.t === t && a.id !== excludeId; })
+    return ASSETS.filter(function (a) { return kindOf(a) === t && a.id !== excludeId; })
       .map(function (a) { return { a: a, d: dist(o, a) }; })
       .sort(function (p, q) { return p.d - q.d; });
   }
   function origin() {
-    if (selA) return { o: selA, t: selA.t, ex: selA.id, ll: [selA.lat, selA.lon] };
+    if (selA) return { o: selA, t: kindOf(selA), ex: selA.id, ll: [selA.lat, selA.lon] };
     if (pin) return { o: xy(pin.lat, pin.lng), t: checkTech, ex: null, ll: [pin.lat, pin.lng] };
     return null;
   }
@@ -127,7 +137,7 @@
         b = inR.filter(function (p) { return p.a.s === "A"; }).length,
         c = inR.filter(function (p) { return p.a.s === "C"; }).length, parts = [];
     if (w) parts.push(num(w) + " working"); if (n) parts.push(num(n) + " not working"); if (b) parts.push(num(b) + " abandoned"); if (c) parts.push(num(c) + " under construction");
-    var html = "<div>Same type (" + TECH_NAME[f.t] + ") within " + num(R) + " m</div><div class='lead'><b>" + (inR.length ? num(inR.length) + "</b> · " + parts.join(" · ") : "None found</b>") + "</div>";
+    var html = "<div>Same type (" + kindName(f.t) + ") within " + num(R) + " m</div><div class='lead'><b>" + (inR.length ? num(inR.length) + "</b> · " + parts.join(" · ") : "None found</b>") + "</div>";
     if (all.length) html += "<div style='color:var(--muted);font-size:12px'>Nearest of same type: " + num(Math.round(all[0].d)) + " m</div>";
     if (pin && !selA && !f0) {
       var near = Math.min.apply(null, ASSETS.map(function (a) { return dist(f.o, a); }));
@@ -135,27 +145,33 @@
     }
     return html;
   }
-  function listHTML() {
-    var f = origin(); if (!f) return "";
-    var inR = nearList(f.o, f.t, f.ex).filter(function (p) { return p.d <= R; }), max = 12;
+  function listHTML(f0) {
+    var f = f0 || origin(); if (!f) return "";
+    var inR = nearList(f.o, f.t, f.ex).filter(function (p) { return p.d <= R; }), max = 5;
     if (!inR.length) return "";
     return "<ul>" + inR.slice(0, max).map(function (p) {
-      return "<li>" + iconSVG(p.a.t, p.a.s, 20) + "<span>" + STAT_NAME[p.a.s] + ", " + esc(p.a.u) + '</span><span class="d">' + num(Math.round(p.d)) + " m</span></li>";
-    }).join("") + (inR.length > max ? "<li>+ " + num(inR.length - max) + " more</li>" : "") + "</ul>";
+      return "<li>" + iconSVG(p.a.t, p.a.s, 18) + "<span>" + STAT_NAME[p.a.s] + ", " + esc(p.a.u) + '</span><span class="d">' + num(Math.round(p.d)) + " m</span></li>";
+    }).join("") + (inR.length > max ? '<li class="more">+ ' + num(inR.length - max) + " more</li>" : "") + "</ul>";
+  }
+  /* the popup grows or shrinks as the radius changes; re-measure it without rebuilding it (a rebuild would drop the slider mid-drag) */
+  function relayout() {
+    var pp = selA && byId[selA.id] ? byId[selA.id].getPopup() : (pinMarker ? pinMarker.getPopup() : null);
+    if (pp && pp.isOpen() && pp._updateLayout) { pp._updateLayout(); pp._updatePosition(); }
   }
   function refreshReadouts() {
-    var sh = summaryHTML(); document.querySelectorAll(".popSum").forEach(function (e) { e.innerHTML = sh; });
+    var sh = summaryHTML(), lh = listHTML();
+    document.querySelectorAll(".popSum").forEach(function (e) { e.innerHTML = sh; });
+    document.querySelectorAll(".popList").forEach(function (e) { e.innerHTML = lh; });
     document.querySelectorAll(".popRv").forEach(function (e) { e.textContent = num(R) + " m"; });
-    document.getElementById("rv2").textContent = num(R) + " m";
-    var nr = document.getElementById("nearres"), f = origin();
-    nr.innerHTML = f ? summaryHTML() + listHTML() : "";
-    document.querySelectorAll("#rad,#popR").forEach(function (e) { if (+e.value !== R) e.value = R; });
+    document.getElementById("rv").textContent = num(R) + " m";
+    document.querySelectorAll("#range,#popR").forEach(function (e) { if (+e.value !== R) e.value = R; });
+    relayout();
   }
   function applyFocus() {
     focus.clearLayers();
     var f = origin(), ids = {};
     if (f) {
-      L.circle(f.ll, { radius: R, color: "#16262c", weight: 1.6, fillColor: "#16262c", fillOpacity: 0.04, interactive: false }).addTo(focus);
+      if (R > 0) L.circle(f.ll, { radius: R, color: "#16262c", weight: 1.6, fillColor: "#16262c", fillOpacity: 0.04, interactive: false }).addTo(focus);
       nearList(f.o, f.t, f.ex).forEach(function (p) {
         if (p.d > R) return; ids[p.a.id] = 1;
         L.polyline([f.ll, [p.a.lat, p.a.lon]], { color: "#16262c", weight: 1.2, dashArray: "4 4", opacity: 0.6, interactive: false }).addTo(focus);
@@ -175,25 +191,28 @@
   function row(k, v) { return "<dt>" + k + "</dt><dd>" + v + "</dd>"; }
   function popupHTML(a) {
     var water = a.w === 1 ? "Flowing" : a.w === 0 ? "Not flowing" : NA;
+    var F = { o: a, t: kindOf(a), ex: a.id };
     return '<div class="pop"><h3>' + TECH_NAME[a.t] + '</h3><span class="badge" style="background:' + COL[a.s] + '">' + STAT_NAME[a.s] + "</span><dl>" +
+      (a.t === "OTH" ? row("Type", val(a.ty)) : "") +
       row("Union", val(a.u)) + row("Built", built(a)) + row("Water source", val(a.src)) +
       row("Output", a.out ? num(a.out) + " L/day" : NA) + row("Users", a.pop ? num(a.pop) : NA) +
       row("Supported by", val(a.sup)) + row("Implemented by", val(a.imp)) + row("O&amp;M", val(a.om)) +
       row("Water at visit", water) + "</dl>" +
-      '<div class="sep"><div class="sum popSum">' + summaryHTML({ o: a, t: a.t, ex: a.id }) + "</div>" + radHTML() + "</div>" +
+      '<div class="sep"><div class="sum popSum">' + summaryHTML(F) + "</div>" + radHTML() + '<div class="popList">' + listHTML(F) + "</div></div>" +
       '<div class="id">ID: ' + esc(a.id) + "</div></div>";
   }
   function radHTML() {
-    return '<div class="rad"><span>Radius</span><b class="popRv"></b></div><input type="range" id="popR" min="250" max="1500" step="50" value="' + R + '" aria-label="Nearby radius in metres">';
+    return '<div class="rad"><span>Radius</span><b class="popRv">' + num(R) + ' m</b></div><input type="range" id="popR" min="0" max="1500" step="50" value="' + R + '" aria-label="Radius in metres">';
   }
+  /* listeners sit on the popup container, which survives content updates, and use event delegation */
   function wirePopup(e) {
     var el = e.popup.getElement(); if (!el) return;
-    var r = el.querySelector("#popR"); if (r) r.addEventListener("input", function () { setR(+r.value); });
-    var s = el.querySelector("#popT"); if (s) s.addEventListener("change", function () { checkTech = s.value; document.getElementById("ctech").value = checkTech; applyFocus(); });
-    refreshReadouts(); e.popup.update();
+    el.addEventListener("input", function (ev) { if (ev.target.id === "popR") setR(+ev.target.value); });
+    el.addEventListener("change", function (ev) { if (ev.target.id === "popT") { checkTech = ev.target.value; applyFocus(); } });
+    refreshReadouts();
   }
-  function setR(v) { R = v; applyFocus(); }
-  var POPOPT = function (w) { return { maxWidth: w, maxHeight: Math.round(window.innerHeight * 0.55), autoPanPadding: [20, 70] }; };
+  function setR(v) { R = v; updateCoverage(); applyFocus(); }
+  var POPOPT = function (w) { return { maxWidth: w, maxHeight: Math.round(window.innerHeight * 0.72), autoPanPadding: [20, 70] }; };
 
   function buildMarkers() {
     markers.clearLayers(); byId = {};
@@ -201,7 +220,7 @@
       if (!tech.has(a.t) || !stat.has(a.s)) return;
       var m = L.marker([a.lat, a.lon], {
         icon: L.divIcon({ className: "wgm-pin", html: iconSVG(a.t, a.s, 28), iconSize: [28, 28], iconAnchor: [14, 14], popupAnchor: [0, -14] }),
-        title: TECH_NAME[a.t] + ", " + STAT_NAME[a.s], riseOnHover: true
+        title: techLabel(a) + ", " + STAT_NAME[a.s], riseOnHover: true
       });
       m.bindPopup(function () { return popupHTML(a); }, POPOPT(310));
       m.on("click", function () { setChecking(false); });
@@ -218,8 +237,8 @@
   var pinIcon = L.divIcon({ className: "wgm-pin", iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -14],
     html: '<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="11" fill="#fff" stroke="#16262c" stroke-width="2"/><path d="M15 5v20M5 15h20" stroke="#16262c" stroke-width="2"/><circle cx="15" cy="15" r="3" fill="#16262c"/></svg>' });
   function pinHTML() {
-    var opts = TECH.map(function (k) { return '<option value="' + k + '"' + (k === checkTech ? " selected" : "") + ">" + TECH_NAME[k] + "</option>"; }).join("");
-    return '<div class="pop"><select id="popT" aria-label="Technology to look for">' + opts + '</select><div class="sum popSum">' + summaryHTML() + "</div>" + radHTML() + "</div>";
+    var opts = KINDS.map(function (k) { return '<option value="' + esc(k) + '"' + (k === checkTech ? " selected" : "") + ">" + esc(kindName(k)) + "</option>"; }).join("");
+    return '<div class="pop"><select id="popT" aria-label="Technology to look for">' + opts + '</select><div class="sum popSum">' + summaryHTML() + "</div>" + radHTML() + '<div class="popList">' + listHTML() + "</div></div>";
   }
   function placePin(ll) {
     selA = null; map.closePopup(); pin = ll;
@@ -239,7 +258,6 @@
   function setChecking(v) {
     checking = v;
     var b = document.getElementById("check"); b.setAttribute("aria-pressed", String(v)); b.textContent = v ? "Tap the map to place a circle" : "Check a location";
-    document.getElementById("ctw").hidden = !v && !pin;
     map.getContainer().classList.toggle("map-check", v);
     if (!v && pin && !pinMarker) clearPin();
     updateSurvey();
@@ -248,18 +266,16 @@
   document.getElementById("check").addEventListener("click", function () {
     if (checking) { setChecking(false); clearPin(); } else { selA = null; map.closePopup(); setChecking(true); }
   });
-  document.getElementById("ctech").addEventListener("change", function (e) { checkTech = e.target.value; applyFocus(); });
 
-  /* ---------- range shading ---------- */
-  var RANGE = CFG.rangeRadius || 800;
+  /* ---------- range shading (uses the same radius R as the nearby circle) ---------- */
   function updateCoverage() {
     var layer = document.getElementById("layer").value, working = document.getElementById("working").checked;
     var cap = document.getElementById("cap");
-    document.getElementById("rv").textContent = num(RANGE) + " m";
-    if (layer === "off" || RANGE <= 0) { cov.set([], []); cap.innerHTML = ""; return; }
+    document.getElementById("rv").textContent = num(R) + " m";
+    if (layer === "off" || R <= 0) { cov.set([], []); cap.innerHTML = ""; return; }
     var pts = ASSETS.filter(function (a) { return (layer === "all" || a.t === layer) && (!working || a.s === "O"); });
-    cov.set(pts, [RANGE]);
-    cap.innerHTML = '<span class="swatch"></span>Shaded: within ' + num(RANGE) + " m of a " + (working ? "working " : "") + (layer === "all" ? "water facility" : TECH_NAME[layer]) + ".";
+    cov.set(pts, [R]);
+    cap.innerHTML = '<span class="swatch"></span>Shaded: within ' + num(R) + " m of a " + (working ? "working " : "") + (layer === "all" ? "water facility" : TECH_NAME[layer]) + ".";
   }
 
   /* ---------- panel ---------- */
@@ -274,8 +290,8 @@
     });
     STAT.forEach(function (k) {
       var n = ASSETS.filter(function (a) { return a.s === k; }).length; if (!n) return;
-      var l = document.createElement("label");
-      l.innerHTML = '<input type="checkbox" data-s="' + k + '"' + (stat.has(k) ? " checked" : "") + '><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7" fill="' + COL[k] + '" stroke="#fff" stroke-width="1.5"/></svg><span>' + STAT_NAME[k] + '</span><span class="n">' + num(n) + "</span>";
+      var l = document.createElement("div"); l.className = "lg";
+      l.innerHTML = '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7" fill="' + COL[k] + '" stroke="#fff" stroke-width="1.5"/></svg><span>' + STAT_NAME[k] + '</span><span class="n">' + num(n) + "</span>";
       sl.appendChild(l);
     });
   }
@@ -284,7 +300,6 @@
   document.getElementById("t_surveyed").textContent = CFG.surveyed;
   var ctc = document.getElementById("contact");
   if (CFG.contact) { ctc.hidden = false; ctc.textContent = "To report a correction, contact " + CFG.contact; }
-  document.getElementById("ctech").innerHTML = TECH.map(function (k) { return '<option value="' + k + '">' + TECH_NAME[k] + "</option>"; }).join("");
 
   var panel = document.getElementById("panel"), toggle = document.getElementById("toggle");
   function setToggleLabel() {
@@ -296,15 +311,12 @@
   if (window.matchMedia("(max-width:760px)").matches) { panel.classList.add("closed"); setToggleLabel(); setTimeout(function () { map.invalidateSize(); map.fitBounds(bounds, { padding: [24, 24] }); }, 50); }
 
   document.getElementById("techs").addEventListener("change", function (e) { var k = e.target.getAttribute("data-t"); if (!k) return; e.target.checked ? tech.add(k) : tech.delete(k); buildMarkers(); });
-  document.getElementById("stats").addEventListener("change", function (e) { var k = e.target.getAttribute("data-s"); if (!k) return; e.target.checked ? stat.add(k) : stat.delete(k); buildMarkers(); });
   ["layer", "working"].forEach(function (id) { document.getElementById(id).addEventListener("change", updateCoverage); });
-  document.getElementById("range").addEventListener("input", function (e) { RANGE = +e.target.value; updateCoverage(); });
+  document.getElementById("range").addEventListener("input", function (e) { setR(+e.target.value); });
   document.querySelectorAll('input[name="base"]').forEach(function (r) {
     r.addEventListener("change", function () { if (!r.checked) return; map.removeLayer(base[curBase]); curBase = r.value; base[curBase].addTo(map); });
   });
-  document.getElementById("rad").addEventListener("input", function (e) { setR(+e.target.value); });
   document.getElementById("layer").value = "RO";
-  document.getElementById("rad").value = R;
-  document.getElementById("range").value = RANGE;
+  document.getElementById("range").value = R;
   buildLists(); buildMarkers(); updateCoverage();
 })();

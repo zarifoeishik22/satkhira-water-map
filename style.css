@@ -23,11 +23,13 @@ h1{font-size:17px;line-height:1.25;margin:0;font-weight:650;letter-spacing:-.005
 section{padding:10px 0;border-bottom:1px solid var(--line)}
 h2{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:6px 0 8px;font-weight:600}
 .field{display:flex;flex-direction:column;gap:4px;font-size:13px;margin-bottom:8px}
+[hidden]{display:none!important}
 select{font:inherit;padding:7px 8px;border:1px solid var(--line);border-radius:5px;background:#fff;color:var(--ink)}
 .radios{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
 .radios.inline{flex-direction:row;gap:16px}
 label{cursor:pointer}
-.check,.radios label,.list label{display:flex;align-items:center;gap:8px;padding:2px 0}
+.check,.radios label,.list label,.list .lg{display:flex;align-items:center;gap:8px;padding:2px 0}
+.list .lg{padding-left:26px}
 input[type=checkbox],input[type=radio]{accent-color:var(--accent);margin:0;width:16px;height:16px}
 .caption{margin:8px 0 0;font-size:12px;color:var(--muted)}
 .swatch{display:inline-block;width:12px;height:12px;background:rgba(47,111,176,.28);border:1.5px solid #1f4f86;border-radius:2px;vertical-align:-1px;margin-right:6px}
@@ -42,11 +44,6 @@ input[type=checkbox],input[type=radio]{accent-color:var(--accent);margin:0;width
 .hint{margin:0 0 8px;color:var(--muted);font-size:12.5px}
 .btn{width:100%;border:1px solid var(--accent);background:#fff;color:var(--accent);border-radius:5px;padding:8px 10px;font:inherit;font-weight:600;cursor:pointer;margin-bottom:8px}
 .btn[aria-pressed="true"]{background:var(--accent);color:#fff}
-.nearres{font-size:13px}
-.nearres .lead{font-weight:600;margin:4px 0}
-.nearres ul{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:2px;max-height:240px;overflow:auto}
-.nearres li{display:flex;align-items:center;gap:8px;padding:3px 0;border-bottom:1px solid var(--line)}
-.nearres li .d{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
 .warn{margin:6px 0 0;padding:6px 8px;border-left:3px solid #c47a12;background:#fff6e5;font-size:12.5px;color:#5a3d06}
 .map-check .leaflet-container,.map-check{cursor:crosshair!important}
 /* markers */
@@ -62,12 +59,19 @@ input[type=checkbox],input[type=radio]{accent-color:var(--accent);margin:0;width
 .leaflet-popup-content{margin:12px 14px;font:13px/1.45 var(--font);min-width:210px}
 .pop h3{margin:0 0 4px;font-size:15px;font-weight:650}
 .badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;color:#fff;margin-bottom:8px}
-.pop dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px}
+.pop dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 12px}
 .pop dt{color:var(--muted)} .pop dd{margin:0;font-variant-numeric:tabular-nums}
 .pop .sep{border-top:1px solid var(--line);margin:8px 0 6px;padding-top:6px;font-size:12px;color:var(--muted)}
 .pop input[type=range]{width:100%;margin:2px 0 0;accent-color:var(--accent)}
 .pop .rad{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:8px}
 .pop .sum{margin-top:6px}
+.pop .lead{font-weight:600;color:var(--ink);margin:2px 0}
+.pop ul{list-style:none;margin:6px 0 0;padding:0;color:var(--ink)}
+.pop li{display:flex;align-items:center;gap:8px;padding:2px 0;border-top:1px solid var(--line);font-size:12.5px}
+.pop li svg{flex:none}
+.pop li .d{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.pop li.more{color:var(--muted);border-top-style:dashed}
+.leaflet-popup-content .pop{width:272px;max-width:100%}
 .pop select{font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:4px;width:100%;margin-bottom:6px}
 .pop .id{font-size:11px;color:var(--muted);margin-top:8px}
 .wgm-cov{pointer-events:none}

@@ -8,9 +8,8 @@ window.WGM_CONFIG = {
   contact: "",
   // A "Check a location" circle further than this (metres) from every surveyed facility triggers a "may not be surveyed" warning.
   surveyRadius: 1500,
-  // Default radius (metres) for the nearby-facilities circle, and for the range shading.
-  nearbyRadius: 1000,
-  rangeRadius: 800,
+  // Default radius (metres). One radius drives both the nearby circle and the range shading.
+  radius: 800,
   basemaps: {
     street:    { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", maxZoom: 19,
                  attribution: "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors" },

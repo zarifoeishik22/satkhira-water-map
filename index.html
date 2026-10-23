@@ -22,29 +22,22 @@
       <button id="toggle" type="button" class="toggle" aria-expanded="true" aria-controls="body">Hide</button>
     </div>
     <div id="body" class="body">
-      <section id="nearby">
-        <h2>Nearby, same technology</h2>
-        <p class="hint">Tap a facility on the map to see similar ones within the radius, or check any spot.</p>
-        <label class="field"><span>Radius <b id="rv2"></b></span>
-          <input type="range" id="rad" min="250" max="1500" step="50" aria-label="Nearby radius in metres"></label>
-        <button id="check" type="button" class="btn" aria-pressed="false">Check a location</button>
-        <label class="field" id="ctw" hidden><span>Technology to look for</span><select id="ctech"></select></label>
-        <div id="nearres" class="nearres" aria-live="polite"></div>
-      </section>
       <section>
-        <h2>Range</h2>
+        <h2>Radius and range</h2>
+        <p class="hint">Tap a facility to see similar ones within the radius. The radius also sets the shaded range.</p>
+        <label class="field"><span>Radius <b id="rv"></b></span>
+          <input type="range" id="range" min="0" max="1500" step="50" aria-label="Radius in metres"></label>
         <label class="field"><span>Show range of</span>
           <select id="layer">
             <option value="off">Off</option>
             <option value="all">All technologies</option>
             <option value="RO">RO plant</option><option value="RWH">Rainwater harvesting</option>
-            <option value="PSF">Pond sand filter</option><option value="RES">Reservoir</option>
+            <option value="PSF">Pond sand filter</option>
           </select>
         </label>
-        <label class="field"><span>Radius <b id="rv"></b></span>
-          <input type="range" id="range" min="0" max="1500" step="50" aria-label="Range radius in metres"></label>
         <label class="check"><input type="checkbox" id="working" checked> <span>Count working facilities only</span></label>
         <p class="caption" id="cap"></p>
+        <button id="check" type="button" class="btn" aria-pressed="false" style="margin-top:10px">Check a location</button>
       </section>
       <section>
         <h2>Technology</h2>

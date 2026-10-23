@@ -15,8 +15,10 @@ Static website. No server, no database, no account needed to run it.
 | `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | Blue water drop tab icon |
 
 ## What a tap does
-Tap a facility: the popup shows its details and how many facilities of the same technology sit within the radius (default 1,000 m, slider 250 to 1,500 m). The circle is drawn, matching facilities are highlighted with lines, and everything else is dimmed. The side panel lists them with distance and status.
-"Check a location" drops a draggable circle on empty ground, with a technology picker. If no surveyed facility is within `surveyRadius` (config.js, default 1,500 m) a warning says the area may not be surveyed.
+Tap a facility: the popup shows its details, how many facilities of the same type sit within the radius, and the five nearest (status, union, distance). The circle is drawn, matching facilities are highlighted with lines, and everything else is dimmed.
+There is one radius (`radius` in config.js, default 800 m, slider 0 to 1,500 m). The slider in the popup and the slider in the side panel are the same setting, and it also sets the blue range shading.
+"Same type" means the same technology. "Other" is split by its Type line, so a reservoir is only compared with reservoirs and a piped supply only with piped supplies.
+"Check a location" (side panel button) drops a draggable circle on empty ground, with a type picker in its popup. If no surveyed facility is within `surveyRadius` (config.js, default 1,500 m) a warning says the area may not be surveyed.
 `surveyRadius` is a proxy. Replace it with the real upazila boundary polygon when you have one.
 
 ## Preview on your computer
@@ -31,7 +33,9 @@ Use a custom domain held by an institution if you can. The map then outlives any
 
 ## Update the data
 `python3 tools/build_data.py <kobo_export.xlsx> .` then re-upload `data.js` and `data.geojson`. Fields written: ID (derived from the site code), technology, status, union, build month and year, water source, output (L/day), users, supported by, implemented by, O&M model, water observed at visit, coordinates. Caretaker name and phone, cost, photos, enumerator and notes are never copied. Funder and implementer names ARE public in `data.js` and `data.geojson`.
-The script skips rows with a technology it does not map (for example "Other") and prints them.
+Reservoirs and "Other" technologies are shown as "Other" with a Type line. Type wording for "Other" rows comes from `OTHER_TYPE` in `tools/build_data.py` (for example "পাইপ লাইন" becomes "Piped water supply"); a new wording is printed so you can add it.
+A rainwater harvesting facility's source water is always set to Rainwater, whatever was entered in the survey; the script lists any it corrected.
+The script skips rows whose technology it cannot map and prints them.
 
 ## Assumptions to confirm before launch
 - Ranges and nearby counts are straight-line, not path-based.

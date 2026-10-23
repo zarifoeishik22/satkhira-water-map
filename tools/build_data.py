@@ -13,7 +13,9 @@ import pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TECH = {"RO plant": "RO", "Rainwater harvesting facility (RWHS)": "RWH",
-        "Pond sand filter (PSF)": "PSF", "Reservoir": "RES"}
+        "Pond sand filter (PSF)": "PSF", "Reservoir": "OTH", "Other": "OTH"}
+# "Other" technology: the map shows these as "Other" with a Type line. Add Bangla/English wording here.
+OTHER_TYPE = {"পাইপ লাইন": "Piped water supply"}
 STATUS = {"Operational": "O", "Non-functional": "N", "Abandoned": "A", "Under construction": "C"}
 FLOW = "Enumerator-observed functionality indicators/Water flowing/available at time of visit"
 LITRES = "How many litres of water does the plant produce per day?"
@@ -57,7 +59,7 @@ def number(v):
 def main(src, out):
     df = pd.read_excel(src)
     df.columns = [str(c).strip() for c in df.columns]
-    feats, skipped = [], []
+    feats, skipped, corrected = [], [], []
     for i, r in df.iterrows():
         t = TECH.get(r.get("Intervention type")); s = STATUS.get(r.get("Current status"))
         try: lat, lon = float(r["Y"]), float(r["X"])
@@ -72,12 +74,25 @@ def main(src, out):
         y = int(d.year) if pd.notna(d) and not known.startswith("Not") else None
         m = int(d.month) if y and known.startswith("Exact") else None
 
+        # type line for "Other" technologies (reservoirs and anything else)
+        ty = None
+        if t == "OTH":
+            if r.get("Intervention type") == "Reservoir": ty = "Reservoir"
+            else:
+                o = clean(r.get('If "Other", specify'))
+                ty = OTHER_TYPE.get(unicodedata.normalize("NFC", o), o) if o else "Other"
+                if o and o not in OTHER_TYPE: UNMAPPED.add("Other technology type: " + o)
+
         # source water
         sw = clean(r.get("Source water type"))
         if sw and sw.lower() == "rainwater": sw = "Rainwater"
         if sw == "Other":
             o = clean(r.get('If "Other", specify.1'))
             sw = OTHER_SOURCE.get(o, o) if o else None
+        # a rainwater harvesting facility's source is rainwater by definition; enumerators sometimes picked another option
+        if t == "RWH":
+            if sw != "Rainwater": corrected.append(("SAT-" + str(r.get("Site code", "")).split("-")[-1].upper(), sw))
+            sw = "Rainwater"
 
         # O&M / tariff
         om = clean(r.get("O&M / tariff model"))
@@ -98,17 +113,20 @@ def main(src, out):
         if imp == "SELF": imp = "Self"
 
         code = str(r.get("Site code", "")).split("-")[-1].upper() or f"R{i:04d}"
+        props = {"id": "SAT-" + code, "t": t, "s": s, "u": clean(r.get("Union")) or "", "y": y, "m": m,
+                 "src": sw, "out": number(r.get(LITRES)) if t == "RO" else None, "pop": number(r.get(PEOPLE)),
+                 "sup": sup, "imp": imp, "om": om,
+                 "w": int(r[FLOW]) if FLOW in df.columns and pd.notna(r[FLOW]) else None}
+        if ty: props["ty"] = ty
         feats.append({"type": "Feature",
             "geometry": {"type": "Point", "coordinates": [round(lon, 5), round(lat, 5)]},
-            "properties": {"id": "SAT-" + code, "t": t, "s": s, "u": clean(r.get("Union")) or "", "y": y, "m": m,
-                           "src": sw, "out": number(r.get(LITRES)) if t == "RO" else None, "pop": number(r.get(PEOPLE)),
-                           "sup": sup, "imp": imp, "om": om,
-                           "w": int(r[FLOW]) if FLOW in df.columns and pd.notna(r[FLOW]) else None}})
+            "properties": props})
     gj = {"type": "FeatureCollection", "features": feats}
     with open(f"{out}/data.geojson", "w", encoding="utf-8") as f: json.dump(gj, f, separators=(",", ":"), ensure_ascii=False)
     with open(f"{out}/data.js", "w", encoding="utf-8") as f: f.write("window.WGM_DATA=" + json.dumps(gj, separators=(",", ":"), ensure_ascii=False) + ";\n")
     print(f"{len(feats)} assets written, {len(skipped)} skipped")
     for k in skipped: print("  skipped row", k)
+    if corrected: print(f"{len(corrected)} rainwater facilities had another source recorded; set to Rainwater:", ", ".join(f"{a} ({b})" for a, b in corrected))
     if UNMAPPED:
         print("Organisation names shown exactly as typed (add them to tools/org_names.csv to shorten or hide):")
         for u in sorted(UNMAPPED): print("  ", u)
