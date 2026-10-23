@@ -23,10 +23,8 @@
     </div>
     <div id="body" class="body">
       <section>
-        <h2>Radius and range</h2>
-        <p class="hint">Tap a facility to see similar ones within the radius. The radius also sets the shaded range.</p>
-        <label class="field"><span>Radius <b id="rv"></b></span>
-          <input type="range" id="range" min="0" max="1500" step="50" aria-label="Radius in metres"></label>
+        <h2>Range</h2>
+        <p class="hint">Tap a facility to see similar ones nearby. Use the slider in its popup to change how far.</p>
         <label class="field"><span>Show range of</span>
           <select id="layer">
             <option value="off">Off</option>
@@ -35,6 +33,8 @@
             <option value="PSF">Pond sand filter</option>
           </select>
         </label>
+        <label class="field"><span>Range radius <b id="rv"></b></span>
+          <input type="range" id="range" min="0" max="1500" step="50" aria-label="Range radius in metres"></label>
         <label class="check"><input type="checkbox" id="working" checked> <span>Count working facilities only</span></label>
         <p class="caption" id="cap"></p>
         <button id="check" type="button" class="btn" aria-pressed="false" style="margin-top:10px">Check a location</button>

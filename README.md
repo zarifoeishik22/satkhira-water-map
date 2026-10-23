@@ -16,7 +16,7 @@ Static website. No server, no database, no account needed to run it.
 
 ## What a tap does
 Tap a facility: the popup shows its details, how many facilities of the same type sit within the radius, and the five nearest (status, union, distance). The circle is drawn, matching facilities are highlighted with lines, and everything else is dimmed.
-There is one radius (`radius` in config.js, default 800 m, slider 0 to 1,500 m). The slider in the popup and the slider in the side panel are the same setting, and it also sets the blue range shading.
+There are two independent radii, both 0 to 1,500 m and 800 m by default (`nearbyRadius` and `rangeRadius` in config.js). The popup slider ("Nearby radius") sets the circle, lines and list for the tapped facility. The panel slider ("Range radius") sets the blue range shading. Moving one does not move the other.
 "Same type" means the same technology. "Other" is split by its Type line, so a reservoir is only compared with reservoirs and a piped supply only with piped supplies.
 "Check a location" (side panel button) drops a draggable circle on empty ground, with a type picker in its popup. If no surveyed facility is within `surveyRadius` (config.js, default 1,500 m) a warning says the area may not be surveyed.
 `surveyRadius` is a proxy. Replace it with the real upazila boundary polygon when you have one.
