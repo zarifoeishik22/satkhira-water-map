@@ -1,12 +1,12 @@
 /* Edit this file to change wording, dates, radius defaults or basemaps.
    For a routine update only data.js needs to change. */
 window.WGM_CONFIG = {
-  title: "Satkhira Water Governance Map",
-  area: "Assasuni upazila",
+  title: "Water Governance Map",
+  area: "Pilot: Assasuni, Satkhira",
   surveyed: "Survey: 17 Sep to 17 Oct 2026",
   // Email or web address shown for corrections. Leave "" to hide the line.
   contact: "zarifoeishik@gmail.com",
-  // A "Check a location" circle further than this (metres) from every surveyed facility triggers a "may not be surveyed" warning.
+  // A "Siting Check" circle further than this (metres) from every surveyed facility triggers a "may not be surveyed" warning.
   surveyRadius: 1500,
   // Default radii (metres). The popup slider sets the nearby radius; the panel slider sets the range shading. They are independent.
   nearbyRadius: 800,

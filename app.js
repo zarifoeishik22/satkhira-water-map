@@ -258,7 +258,7 @@
   }
   function setChecking(v) {
     checking = v;
-    var b = document.getElementById("check"); b.setAttribute("aria-pressed", String(v)); b.textContent = v ? "Tap the map to place a circle" : "Check a location";
+    var b = document.getElementById("check"); b.setAttribute("aria-pressed", String(v)); b.textContent = v ? "Tap the map to place a circle" : "Siting Check";
     map.getContainer().classList.toggle("map-check", v);
     if (!v && pin && !pinMarker) clearPin();
     updateSurvey();
