@@ -5,7 +5,7 @@ window.WGM_CONFIG = {
   area: "Assasuni upazila",
   surveyed: "Survey: 17 Sep to 17 Oct 2026",
   // Email or web address shown for corrections. Leave "" to hide the line.
-  contact: "",
+  contact: "zarifoeishik@gmail.com",
   // A "Check a location" circle further than this (metres) from every surveyed facility triggers a "may not be surveyed" warning.
   surveyRadius: 1500,
   // Default radii (metres). The popup slider sets the nearby radius; the panel slider sets the range shading. They are independent.

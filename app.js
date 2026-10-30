@@ -299,8 +299,8 @@
   document.getElementById("t_title").textContent = CFG.title;
   document.getElementById("t_area").textContent = CFG.area;
   document.getElementById("t_surveyed").textContent = CFG.surveyed;
-  var ctc = document.getElementById("contact");
-  if (CFG.contact) { ctc.hidden = false; ctc.textContent = "To report a correction, contact " + CFG.contact; }
+  var corr = document.getElementById("corr");
+  if (CFG.contact) { corr.hidden = false; corr.href = "mailto:" + CFG.contact; }
 
   var panel = document.getElementById("panel"), toggle = document.getElementById("toggle");
   function setToggleLabel() {
